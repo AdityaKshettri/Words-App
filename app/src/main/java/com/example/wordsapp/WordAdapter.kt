@@ -26,10 +26,8 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wordsapp.WordListFragment.Companion.SEARCH_PREFIX
 
-/**
- * Adapter for the [RecyclerView] in [DetailActivity].
- */
 class WordAdapter(private val letterId: String, context: Context) :
     RecyclerView.Adapter<WordAdapter.WordViewHolder>() {
 
@@ -53,7 +51,7 @@ class WordAdapter(private val letterId: String, context: Context) :
     }
 
     class WordViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val button = view.findViewById<Button>(R.id.button_item)
+        val button: Button = view.findViewById(R.id.button_item)
     }
 
     override fun getItemCount(): Int = filteredWords.size
@@ -72,9 +70,6 @@ class WordAdapter(private val letterId: String, context: Context) :
         return WordViewHolder(layout)
     }
 
-    /**
-     * Replaces the content of an existing view with new data
-     */
     override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
 
         val item = filteredWords[position]
@@ -84,31 +79,29 @@ class WordAdapter(private val letterId: String, context: Context) :
         // Set the text of the WordViewHolder
         holder.button.text = item
         holder.button.setOnClickListener {
-            val queryUrl: Uri = Uri.parse("${DetailActivity.SEARCH_PREFIX}${item}")
+            val queryUrl: Uri = Uri.parse("${SEARCH_PREFIX}${item}")
             val intent = Intent(Intent.ACTION_VIEW, queryUrl)
             context.startActivity(intent)
         }
     }
+
     // Setup custom accessibility delegate to set the text read with
     // an accessibility service
     companion object Accessibility : View.AccessibilityDelegate() {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-        override fun onInitializeAccessibilityNodeInfo(
-            host: View?,
-            info: AccessibilityNodeInfo?
-        ) {
+        override fun onInitializeAccessibilityNodeInfo(host: View, info: AccessibilityNodeInfo) {
             super.onInitializeAccessibilityNodeInfo(host, info)
             // With `null` as the second argument to [AccessibilityAction], the
             // accessibility service announces "double tap to activate".
             // If a custom string is provided,
             // it announces "double tap to <custom string>".
-            val customString = host?.context?.getString(R.string.look_up_word)
+            val customString = host.context?.getString(R.string.look_up_word)
             val customClick =
                 AccessibilityNodeInfo.AccessibilityAction(
                     AccessibilityNodeInfo.ACTION_CLICK,
                     customString
                 )
-            info?.addAction(customClick)
+            info.addAction(customClick)
         }
     }
 }
